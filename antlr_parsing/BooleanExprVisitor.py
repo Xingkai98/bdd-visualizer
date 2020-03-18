@@ -15,49 +15,43 @@ class BooleanExprVisitor(ParseTreeVisitor):
         return self.visit(ctx.expr())
 
 
+    # Visit a parse tree produced by BooleanExprParser#variableExpr.
+    def visitVariableExpr(self, ctx:BooleanExprParser.VariableExprContext):
+        return BooleanVariableNode(value=str(ctx.VARIABLE()))
+
     # Visit a parse tree produced by BooleanExprParser#conjunctionExpr.
-    def visitConjunctionExpr(self, ctx:BooleanExprParser.ConjunctionExprContext):
+    def visitConjunctionExpr(self, ctx: BooleanExprParser.ConjunctionExprContext):
         node = ExprNode(value='∧')
         node.left = self.visit(ctx.left)
         node.right = self.visit(ctx.right)
         return node
 
-
     # Visit a parse tree produced by BooleanExprParser#negationExpr.
-    def visitNegationExpr(self, ctx:BooleanExprParser.NegationExprContext):
+    def visitNegationExpr(self, ctx: BooleanExprParser.NegationExprContext):
         node = ExprNode(value='¬')
         node.child = self.visit(ctx.child)
         return node
 
-
     # Visit a parse tree produced by BooleanExprParser#impExr.
-    def visitImpExr(self, ctx:BooleanExprParser.ImpExrContext):
+    def visitImpExr(self, ctx: BooleanExprParser.ImpExrContext):
         node = ExprNode(value='=>')
         node.left = self.visit(ctx.left)
         node.right = self.visit(ctx.right)
         return node
 
-
     # Visit a parse tree produced by BooleanExprParser#disjunctionExpr.
-    def visitDisjunctionExpr(self, ctx:BooleanExprParser.DisjunctionExprContext):
+    def visitDisjunctionExpr(self, ctx: BooleanExprParser.DisjunctionExprContext):
         node = ExprNode(value='∨')
         node.left = self.visit(ctx.left)
         node.right = self.visit(ctx.right)
         return node
 
-
-    # Visit a parse tree produced by BooleanExprParser#numberExpr.
-    def visitNumberExpr(self, ctx:BooleanExprParser.NumberExprContext):
-        return BooleanValueNode(value=int(str(ctx.NUM())))
-
-
     # Visit a parse tree produced by BooleanExprParser#parensExpr.
-    def visitParensExpr(self, ctx:BooleanExprParser.ParensExprContext):
+    def visitParensExpr(self, ctx: BooleanExprParser.ParensExprContext):
         return self.visit(ctx.expr())
 
-
     # Visit a parse tree produced by BooleanExprParser#biimpExpr.
-    def visitBiimpExpr(self, ctx:BooleanExprParser.BiimpExprContext):
+    def visitBiimpExpr(self, ctx: BooleanExprParser.BiimpExprContext):
         node = ExprNode(value='<=>')
         node.left = self.visit(ctx.left)
         node.right = self.visit(ctx.right)

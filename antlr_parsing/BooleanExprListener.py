@@ -17,6 +17,15 @@ class BooleanExprListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by BooleanExprParser#variableExpr.
+    def enterVariableExpr(self, ctx:BooleanExprParser.VariableExprContext):
+        pass
+
+    # Exit a parse tree produced by BooleanExprParser#variableExpr.
+    def exitVariableExpr(self, ctx:BooleanExprParser.VariableExprContext):
+        pass
+
+
     # Enter a parse tree produced by BooleanExprParser#conjunctionExpr.
     def enterConjunctionExpr(self, ctx:BooleanExprParser.ConjunctionExprContext):
         pass
@@ -50,15 +59,6 @@ class BooleanExprListener(ParseTreeListener):
 
     # Exit a parse tree produced by BooleanExprParser#disjunctionExpr.
     def exitDisjunctionExpr(self, ctx:BooleanExprParser.DisjunctionExprContext):
-        pass
-
-
-    # Enter a parse tree produced by BooleanExprParser#numberExpr.
-    def enterNumberExpr(self, ctx:BooleanExprParser.NumberExprContext):
-        pass
-
-    # Exit a parse tree produced by BooleanExprParser#numberExpr.
-    def exitNumberExpr(self, ctx:BooleanExprParser.NumberExprContext):
         pass
 
 

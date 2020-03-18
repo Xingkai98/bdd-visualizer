@@ -1,5 +1,5 @@
 
-class BooleanValueNode():
+class BooleanVariableNode():
     def __init__(self, value=None):
         self.value = value
 
@@ -11,6 +11,15 @@ class ExprNode():
         self.child = child
 
 class EvaluationVisitor():
+
+    variables = {
+        'x1' : True,
+        'x2' : False,
+    }
+
+    def __init__(self, variables=None):
+        self.variables = variables
+
     def visit(self, node):
         if isinstance(node, ExprNode):
             if node.value == '¬':
@@ -20,15 +29,19 @@ class EvaluationVisitor():
             elif node.value == '∨':
                 return self.visit(node.left) or self.visit(node.right)
             elif node.value == '<=>':
+                return bool(self.visit(node.left) == self.visit(node.right))
+            elif node.value == '=>':
                 left = self.visit(node.left)
                 right = self.visit(node.right)
                 if left and not right:
                     return False
                 else:
                     return True
-            elif node.value == '=>':
-                return bool(self.visit(node.left) == self.visit(node.right))
-        elif isinstance(node, BooleanValueNode):
-            return bool(node.value)
+        elif isinstance(node, BooleanVariableNode):
+            if node.value in self.variables:
+                return bool(self.variables[node.value])
+            else:
+                print(str(node.value) + '变量未定义。')
+                return False
         else:
             return

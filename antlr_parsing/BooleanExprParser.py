@@ -43,7 +43,7 @@ class BooleanExprParser ( Parser ):
 
     symbolicNames = [ "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
                       "<INVALID>", "<INVALID>", "<INVALID>", "<INVALID>", 
-                      "NUM", "WS" ]
+                      "VARIABLE", "WS" ]
 
     RULE_compileUnit = 0
     RULE_expr = 1
@@ -58,7 +58,7 @@ class BooleanExprParser ( Parser ):
     T__4=5
     T__5=6
     T__6=7
-    NUM=8
+    VARIABLE=8
     WS=9
 
     def __init__(self, input:TokenStream, output:TextIO = sys.stdout):
@@ -135,6 +135,30 @@ class BooleanExprParser ( Parser ):
      
         def copyFrom(self, ctx:ParserRuleContext):
             super().copyFrom(ctx)
+
+
+    class VariableExprContext(ExprContext):
+
+        def __init__(self, parser, ctx:ParserRuleContext): # actually a BooleanExprParser.ExprContext
+            super().__init__(parser)
+            self.copyFrom(ctx)
+
+        def VARIABLE(self):
+            return self.getToken(BooleanExprParser.VARIABLE, 0)
+
+        def enterRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "enterVariableExpr" ):
+                listener.enterVariableExpr(self)
+
+        def exitRule(self, listener:ParseTreeListener):
+            if hasattr( listener, "exitVariableExpr" ):
+                listener.exitVariableExpr(self)
+
+        def accept(self, visitor:ParseTreeVisitor):
+            if hasattr( visitor, "visitVariableExpr" ):
+                return visitor.visitVariableExpr(self)
+            else:
+                return visitor.visitChildren(self)
 
 
     class ConjunctionExprContext(ExprContext):
@@ -253,30 +277,6 @@ class BooleanExprParser ( Parser ):
                 return visitor.visitChildren(self)
 
 
-    class NumberExprContext(ExprContext):
-
-        def __init__(self, parser, ctx:ParserRuleContext): # actually a BooleanExprParser.ExprContext
-            super().__init__(parser)
-            self.copyFrom(ctx)
-
-        def NUM(self):
-            return self.getToken(BooleanExprParser.NUM, 0)
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterNumberExpr" ):
-                listener.enterNumberExpr(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitNumberExpr" ):
-                listener.exitNumberExpr(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitNumberExpr" ):
-                return visitor.visitNumberExpr(self)
-            else:
-                return visitor.visitChildren(self)
-
-
     class ParensExprContext(ExprContext):
 
         def __init__(self, parser, ctx:ParserRuleContext): # actually a BooleanExprParser.ExprContext
@@ -366,12 +366,12 @@ class BooleanExprParser ( Parser ):
                 self.state = 13
                 localctx.child = self.expr(6)
                 pass
-            elif token in [BooleanExprParser.NUM]:
-                localctx = BooleanExprParser.NumberExprContext(self, localctx)
+            elif token in [BooleanExprParser.VARIABLE]:
+                localctx = BooleanExprParser.VariableExprContext(self, localctx)
                 self._ctx = localctx
                 _prevctx = localctx
                 self.state = 14
-                self.match(BooleanExprParser.NUM)
+                self.match(BooleanExprParser.VARIABLE)
                 pass
             else:
                 raise NoViableAltException(self)

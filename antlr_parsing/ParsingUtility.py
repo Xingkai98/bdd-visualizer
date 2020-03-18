@@ -7,16 +7,19 @@ from EvaluationVisitor import EvaluationVisitor
 
 class ParsingUtility:
 
+    def __init__(self, variables=None):
+        self.variables = variables
+
     def read_from_file(self, path):
         pass
 
-    def parse(self, str):
-        lexer = BooleanExprLexer(str)
+    def parse(self, input):
+        lexer = BooleanExprLexer(input)
         stream = CommonTokenStream(lexer)
         parser = BooleanExprParser(stream)
         tree = parser.compileUnit()
         ast = BooleanExprVisitor().visitCompileUnit(tree)
-        value = EvaluationVisitor().visit(ast)
+        value = EvaluationVisitor(self.variables).visit(ast)
         return value
 
 def main(argv):

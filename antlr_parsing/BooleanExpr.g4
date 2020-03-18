@@ -9,8 +9,8 @@ expr
    |   left=expr '∨' right=expr             # disjunctionExpr
    |   left=expr '<=>' right=expr           # biimpExpr
    |   left=expr '=>' right=expr            # impExr
-   |   NUM                                  # numberExpr
+   |   VARIABLE                             # variableExpr
    ;
 
-NUM :   [0-1]+;
+VARIABLE :   [a-zA-Z]+[a-zA-Z0-9]*;
 WS  :   [ \t\r\n] -> skip;
