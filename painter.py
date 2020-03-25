@@ -3,6 +3,7 @@ from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 
 class Tree:
 
+
     def __init__(self, root_node=None):
         self.root_node = root_node
 
@@ -46,32 +47,34 @@ class Node:
         self.decay = decay
 
     def create_child_node(self, direc=None, d=None, h=None,
-                          isLeaf=False, text=None):
+                          isLeaf=False, text=None, decay=None):
 
         child_d = self.d
         child_h = self.h
 
-        if d:
-            child_d = d
         if h:
             child_h = h
+        if d:
+            child_d = d
+        if decay:
+            child_d -= decay
 
         x = self.center[0]
         y = self.center[1]
 
         if isLeaf:
-            child_node = LeafNode(canvas=self.canvas)
+            child_node = LeafNode(canvas=self.canvas,d=child_d,h=child_h)
         else:
-            child_node = Node(canvas=self.canvas)
+            child_node = Node(canvas=self.canvas,d=child_d,h=child_h)
 
         if text:
             child_node.text = text
 
         if direc == 'left':
-            child_node.center = [self.center[0] - child_d, self.center[1] + child_h]
+            child_node.center = [x - self.d, y + self.h]
             self.left_child = child_node
         elif direc == 'right':
-            child_node.center = [self.center[0] + child_d, self.center[1] + child_h]
+            child_node.center = [x + self.d, y + self.h]
             self.right_child = child_node
 
     def draw_text(self):

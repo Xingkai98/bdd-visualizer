@@ -3,10 +3,12 @@ import tkinter.messagebox as msgbox
 from ParsingUtility import ParsingUtility
 import sys
 from antlr4 import InputStream
+from img_frame import ImgFrame
 
 class BddDemo(tk.Tk):
 
     variables = {}
+    var_list = []
 
     def __init__(self, vars=None):
 
@@ -19,7 +21,7 @@ class BddDemo(tk.Tk):
             self.vars = vars
 
         self.title("BDD")
-        self.geometry("500x500")
+        self.geometry("600x600")
 
         self.expr_label = tk.Label(self, text="Default", bg="lightgrey", fg="black",
                          pady=10)
@@ -82,6 +84,11 @@ class BddDemo(tk.Tk):
         p = ParsingUtility(self.variables)
         text += ': ' + str(p.parse(antlr_input))
         self.expr_label["text"] = text
+
+        self.var_list = [i for i in self.variables]
+
+        img = ImgFrame(expr=text, var_list=self.var_list)
+        img.pack()
 
 
 if __name__ == "__main__":
