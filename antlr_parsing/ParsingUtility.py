@@ -22,6 +22,11 @@ class ParsingUtility:
         value = EvaluationVisitor(self.variables).visit(ast)
         return value
 
+    # Returning True or False (bool type)
+    def get_parse_result(self, text):
+        antlr_input = InputStream(text)
+        return self.parse(antlr_input)
+
 def main(argv):
     while True:
         text = InputStream(input(">"))

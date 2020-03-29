@@ -33,7 +33,7 @@ class Tree:
 class Node:
 
     def __init__(self, canvas=None, center=(0,0), r=15,
-                 d=30, h=60, dash=(4,4), decay=10,
+                 d=40, h=60, dash=(4,4), decay=10,
                  left_child=None, right_child=None, text=None):
         self.canvas = canvas
         self.center = center

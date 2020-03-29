@@ -21,7 +21,7 @@ class BddDemo(tk.Tk):
             self.vars = vars
 
         self.title("BDD")
-        self.geometry("600x600")
+        self.geometry("500x500")
 
         self.expr_label = tk.Label(self, text="Default", bg="lightgrey", fg="black",
                          pady=10)
@@ -78,12 +78,13 @@ class BddDemo(tk.Tk):
 
         self.vars.append(new_var)
 
+
     def update_expr(self, event=None):
-        text = str(self.text_input.get(1.0, tk.END).strip())
-        antlr_input = InputStream(text)
         p = ParsingUtility(self.variables)
-        text += ': ' + str(p.parse(antlr_input))
-        self.expr_label["text"] = text
+        text = str(self.text_input.get(1.0, tk.END).strip())
+        result_text = text + ': ' + str(p.get_parse_result(text))
+
+        self.expr_label["text"] = result_text
 
         self.var_list = [i for i in self.variables]
 
