@@ -12,27 +12,25 @@ class ExprNode():
 
 class EvaluationVisitor():
 
-    variables = {
-        'x1' : True,
-        'x2' : False,
-    }
+    variables = {}
 
-    def __init__(self, variables=None):
+    def visit(self, node, variables): # 获取表达式的值
         self.variables = variables
+        return self.visit_for_value(node=node)
 
-    def visit(self, node):
+    def visit_for_value(self, node):   # 获取表达式的值-递归函数
         if isinstance(node, ExprNode):
             if node.value == '¬':
-                return bool(1-self.visit(node.child))
+                return bool(1-self.visit_for_value(node.child))
             elif node.value == '∧':
-                return self.visit(node.left) and self.visit(node.right)
+                return self.visit_for_value(node.left) and self.visit_for_value(node.right)
             elif node.value == '∨':
-                return self.visit(node.left) or self.visit(node.right)
+                return self.visit_for_value(node.left) or self.visit_for_value(node.right)
             elif node.value == '<=>':
-                return bool(self.visit(node.left) == self.visit(node.right))
+                return bool(self.visit_for_value(node.left) == self.visit_for_value(node.right))
             elif node.value == '=>':
-                left = self.visit(node.left)
-                right = self.visit(node.right)
+                left = self.visit_for_value(node.left)
+                right = self.visit_for_value(node.right)
                 if left and not right:
                     return False
                 else:
@@ -45,3 +43,21 @@ class EvaluationVisitor():
                 return False
         else:
             return
+
+    def visit_for_var_list(self, node):   # 获取变量列表
+        var_list = []
+        if isinstance(node, ExprNode):
+            if node.value == '¬':
+                return self.visit_for_var_list(node.child)
+            elif node.value == '∧' or '∨' or '<=>' or '=>':
+                left_vlist = self.visit_for_var_list(node.left)
+                right_vlist = self.visit_for_var_list(node.right)
+                return list(set(left_vlist).union(right_vlist))
+            else:
+                pass
+        elif isinstance(node, BooleanVariableNode):
+            var_list.append(str(node.value))
+            print(str(node.value))
+            return var_list
+        else:
+            pass

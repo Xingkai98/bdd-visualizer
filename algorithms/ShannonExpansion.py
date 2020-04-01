@@ -1,5 +1,4 @@
 from ParsingUtility import *
-from binary import *
 import queue
 from painter import *
 
@@ -18,12 +17,15 @@ class BoolExprToINF:
     inf_list = []
     bool_expr = ''
 
-    def __init__(self, canvas=None,var_list=None, default_var='t', bool_expr=''):
+    def __init__(self, canvas=None, var_list=None,
+                 default_var='t', bool_expr='',
+                 variables=None):
         self.canvas = canvas
         self.var_list = var_list
+        self.variables = variables
         self.default_var = default_var
         self.bool_expr = bool_expr
-        self.p = ParsingUtility(variables=self.variables)
+        self.p = ParsingUtility()
         self.generate_result_table()
         print('真值表：')
         print(self.result_table)
@@ -33,8 +35,8 @@ class BoolExprToINF:
     def generate_inf_list(self):
         decay = 10
         root_node = Node(canvas=self.canvas, center=[250,30],
-                    text=self.var_list[0],
-                    d=60, h=60)
+                         text=self.var_list[0],
+                         d=60, h=60)
         print("INF范式：")
         q = queue.Queue()
         init_obj = Obj(a='',current_var=self.var_list[0],node=root_node)
@@ -181,8 +183,8 @@ class BoolExprToINF:
     def generate_result_table(self):
         l = len(self.var_list)
         for i in range(2**l):
-            self.p.variables = self.num_to_dict(i)
-            result = self.p.get_parse_result(self.bool_expr)
+            variables = self.num_to_dict(i)
+            result = self.p.get_parse_result(text=self.bool_expr, variables=variables)
             self.result_table[self.num_to_str(i)] = result
 
 
@@ -197,8 +199,8 @@ class INFExpr:
         if isinstance(current_var, str):
             self.current_var = current_var
 
-        self.b1=b1
-        self.b2=b2
+        self.b1 = b1
+        self.b2 = b2
 
         self.tree_position = tree_position
 
