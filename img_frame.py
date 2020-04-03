@@ -1,6 +1,6 @@
 from tkinter import Tk, Canvas, Frame, BOTH, W
 from painter import *
-from ShannonExpansion import *
+from BooleanExprToOBDD import *
 
 class ImgFrame(Frame):
 

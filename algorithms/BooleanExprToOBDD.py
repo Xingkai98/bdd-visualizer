@@ -13,9 +13,12 @@ class BoolExprToINF:
     variables = {}
     var_list = []
     result_table = {}
+    bool_expr = ''
 
     inf_list = []
-    bool_expr = ''
+    decision_tree = None
+    simplified_inf_list = []
+    obdd_tree = None
 
     def __init__(self, canvas=None, var_list=None,
                  default_var='t', bool_expr='',
@@ -25,14 +28,18 @@ class BoolExprToINF:
         self.variables = variables
         self.default_var = default_var
         self.bool_expr = bool_expr
+
         self.p = ParsingUtility()
-        self.generate_result_table()
+        self.generate_result_table() # 得到真值表
         print('真值表：')
         print(self.result_table)
-        self.generate_inf_list()
+
+        self.generate_inf_list() # 得到INF，并画决策树
+        self.simplify_inf_list() # 简化后的INF
 
     # 生成INF范式 （目前画决策树的部分也在此）
     def generate_inf_list(self):
+        self.inf_list.clear()
         decay = 10
         root_node = Node(canvas=self.canvas, center=[250,30],
                          text=self.var_list[0],
@@ -67,14 +74,47 @@ class BoolExprToINF:
                 else:
                     cur_obj.node.create_child_node(direc='left', text=str(int(l[1])),
                                                    decay=decay, isLeaf=True)
-
+        print('INF:')
         for inf in self.inf_list:
             print(inf.to_str())
 
-        tree = Tree(root_node=root_node)
-        tree.draw()
+        self.decision_tree = Tree(root_node=root_node)
+        self.decision_tree.draw()
         #print("---DFS:---")
         #self.create_inf_dfs(a='',current_var=self.var_list[0])
+
+    def simplify_inf_list(self):
+        self.simplified_inf_list.clear()
+        if len(self.inf_list) <= 1:
+            self.simplified_inf_list = self.inf_list
+            return
+        index = len(self.inf_list) - 1
+
+        tmp = self.inf_list
+        while index > 0: 
+            for i in range(index-1, -1, -1):# 从尾部扫描到头部
+                print('index: '+ str(index) + ', ' + 'i: ' + str(i))
+                if tmp[index].equals(tmp[i]) and index!=i: # 若相同，保留数字小的，比如"001""111"保留前者
+                    smaller_one = tmp[index].a
+                    bigger_one = tmp[i].a
+                    if int(tmp[index].a) > int(tmp[i].a):
+                        smaller_one = tmp[i].a
+                        bigger_one = tmp[index].a
+                        tmp.remove(tmp[index])
+                    else:
+                        tmp.remove(tmp[i])
+                    for each in tmp:
+                        if each.b1 == bigger_one:
+                            each.b1 = smaller_one
+                        if each.b2 == bigger_one:
+                            each.b2 = smaller_one
+                    index -= 1 # 因为删去了一个，所以index减1
+            index -= 1
+        self.simplified_inf_list = tmp
+
+        print('简化后的INF:')
+        for inf in self.simplified_inf_list:
+            print(inf.to_str())
 
     # l = [ [a,next_var]|bool, [a,next_var]|bool]
     # 若为bool则表明该子节点为终端节点
@@ -219,7 +259,16 @@ class INFExpr:
             s += 't' + self.b2
         return s
 
+    def equals(self, inf_expr):
+        if self.current_var == inf_expr.current_var and self.b1 == inf_expr.b1 and self.b2 == inf_expr.b2:
+            return True
+        else:
+            return False
+
+
 if __name__ == '__main__':
     inf = INFExpr(current_var='x1',b1='1',b2='0')
-    b = BoolExprToINF()
-    print(inf.to_str())
+    inf.a='000'
+    inff = INFExpr(current_var='x1',b1='1',b2='0')
+    inff.a = '111'
+    print(inf.equals(inff))

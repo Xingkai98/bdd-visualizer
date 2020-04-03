@@ -101,7 +101,7 @@ class BddDemo(tk.Tk):
                 variables[var] = self.variables[var]
                 var_list.append(var)
             else:
-                msgbox.showerror('错误', '请将变量赋值为0或1。')
+                msgbox.showerror('错误', str(var) + '变量不存在。')
                 return
         self.variables = variables
         self.var_list = var_list
