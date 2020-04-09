@@ -31,9 +31,12 @@ class ImgFrame(Frame):
         self.pack(fill=BOTH, expand=1)
 
         #生成INF+画决策树
-        bool_to_inf = BoolExprToINF(canvas=self.canvas,
+        bool_to_obdd = BoolExprToOBDD(canvas=self.canvas,
                                     bool_expr=self.expr,
-                                    var_list=self.var_list)
+                                    var_list=self.var_list,
+                                    root_center=self.root_center)
+        #bool_to_obdd.decision_tree.draw()
+        bool_to_obdd.draw_obdd(root_center=self.root_center)
 
         self.canvas.pack(fill=BOTH, expand=1)
 

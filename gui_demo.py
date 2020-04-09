@@ -110,6 +110,8 @@ class BddDemo(tk.Tk):
         for var in self.var_list:
             self.var_sequence_label["text"] += str(var) + ', '
 
+        self.update_image()
+        '''
         if self.expr != '':
             self.img.pack_forget()
             self.img = ImgFrame(expr=self.expr, var_list=self.var_list,
@@ -117,10 +119,9 @@ class BddDemo(tk.Tk):
                                 variables=self.variables)
             self.img.pack()
         else:
-            msgbox.showerror('错误','请输入表达式。')
+            msgbox.showerror('错误','输入不能为空。')
             return
-
-
+        '''
 
     def update_expr(self, event=None):
 
@@ -137,10 +138,30 @@ class BddDemo(tk.Tk):
         self.var_sequence_label["text"] = self.var_sequence_label["text"][:-2]
         self.expr_label["text"] = text
 
-        self.img = ImgFrame(expr=text, var_list=self.var_list,
-                       root_frame_geometry=[self.width,self.height],
-                       variables=self.variables)
-        self.img.pack()
+        self.update_image(text=text)
+        '''
+        if self.expr != '':
+            self.img.pack_forget()
+            self.img = ImgFrame(expr=text, var_list=self.var_list,
+                           root_frame_geometry=[self.width,self.height],
+                           variables=self.variables)
+            self.img.pack()
+        '''
+
+    def update_image(self, text=None):
+        expr = self.expr
+        if text:
+            expr = text
+        if expr != '':
+            if self.img:
+                self.img.pack_forget()
+            self.img = ImgFrame(expr=expr, var_list=self.var_list,
+                                root_frame_geometry=[self.width, self.height],
+                                variables=self.variables)
+            self.img.pack()
+        else:
+            msgbox.showerror('错误','输入不能为空。')
+            return
 
 
 if __name__ == "__main__":

@@ -1,34 +1,4 @@
-
 from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
-
-class Tree:
-
-
-    def __init__(self, root_node=None):
-        self.root_node = root_node
-
-    def draw_all_lines(self, node): # 画出所有连线
-        if node:
-            node.draw_right_line()
-            node.draw_left_line()
-        if node.left_child:
-            self.draw_all_lines(node.left_child)
-        if node.right_child:
-            self.draw_all_lines(node.right_child)
-
-    def draw_all_nodes(self, node): # 画出所有节点内容
-        if node:
-            node.draw_center()
-        if node.left_child:
-            self.draw_all_nodes(node.left_child)
-        if node.right_child:
-            self.draw_all_nodes(node.right_child)
-
-    def draw(self): # 画出整个树
-        self.draw_all_lines(self.root_node)
-        self.draw_all_nodes(self.root_node)
-
-
 
 class Node:
 
@@ -96,9 +66,28 @@ class Node:
         self.canvas.create_line(self.center[0], self.center[1],
                                 self.center[0] + self.d, self.center[1] + self.h)
 
+    def draw_line_manual(self, isDashed, d, h):
+        if isDashed:
+            self.canvas.create_line(self.center[0], self.center[1],
+                                    self.center[0] + d, self.center[1] + h,
+                                    dash=self.dash)
+        else:
+            self.canvas.create_line(self.center[0], self.center[1],
+                                    self.center[0] + d, self.center[1] + h)
+
+    def draw_line_towards(self, isDashed, node):
+        if isDashed:
+            self.canvas.create_line(self.center[0], self.center[1],
+                                    node.center[0], node.center[1],
+                                    dash=self.dash)
+        else:
+            self.canvas.create_line(self.center[0], self.center[1],
+                                    node.center[0], node.center[1])
+
 class LeafNode(Node):
 
-    def draw_center(self, text=None):
+    def draw_center(self, text=None, r=10):
+        self.r = r
         self.canvas.create_rectangle(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r,
                                      outline='black',fill='white',width=2)
         self.draw_text()
@@ -108,3 +97,30 @@ class LeafNode(Node):
 
     def draw_right_line(self):
         pass
+
+
+class Tree:
+
+    def __init__(self, root_node=None):
+        self.root_node = root_node
+
+    def draw_all_lines(self, node): # 画出所有连线
+        if node:
+            node.draw_right_line()
+            node.draw_left_line()
+        if node.left_child:
+            self.draw_all_lines(node.left_child)
+        if node.right_child:
+            self.draw_all_lines(node.right_child)
+
+    def draw_all_nodes(self, node): # 画出所有节点内容
+        if node:
+            node.draw_center()
+        if node.left_child:
+            self.draw_all_nodes(node.left_child)
+        if node.right_child:
+            self.draw_all_nodes(node.right_child)
+
+    def draw(self): # 画出整个树
+        self.draw_all_lines(self.root_node)
+        self.draw_all_nodes(self.root_node)
