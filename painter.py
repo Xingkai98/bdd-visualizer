@@ -54,7 +54,7 @@ class Node:
 
     def draw_center(self):
         self.canvas.create_oval(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r, outline="black",
-                                fill="white", width=2)
+                                fill="white", width=1)
         self.draw_text()
 
     def draw_left_line(self):
@@ -86,10 +86,10 @@ class Node:
 
 class LeafNode(Node):
 
-    def draw_center(self, text=None, r=10):
+    def draw_center(self, text=None, r=15):
         self.r = r
         self.canvas.create_rectangle(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r,
-                                     outline='black',fill='white',width=2)
+                                     outline='black',fill='white',width=1)
         self.draw_text()
 
     def draw_left_line(self):

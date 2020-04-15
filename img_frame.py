@@ -1,6 +1,6 @@
 from tkinter import Tk, Canvas, Frame, BOTH, W
 from painter import *
-from BooleanExprToOBDD import *
+from bool_expr_to_obdd import *
 
 class ImgFrame(Frame):
 
@@ -23,18 +23,18 @@ class ImgFrame(Frame):
             self.canvas = canvas
         else:
             self.canvas = Canvas(self)
-        self.initUI()
 
-    def initUI(self):
-
-        self.master.title("Lines")
+    def draw(self):
+        self.master.title("Binary Decision Diagram")
         self.pack(fill=BOTH, expand=1)
 
         #生成INF+画决策树
         bool_to_obdd = BoolExprToOBDD(canvas=self.canvas,
-                                    bool_expr=self.expr,
-                                    var_list=self.var_list,
-                                    root_center=self.root_center)
+                                      bool_expr=self.expr,
+                                      var_list=self.var_list,
+                                      root_center=self.root_center)
+        bool_to_obdd.generate_inf(generate_decision_tree=True,
+                                  debug=True)
         #bool_to_obdd.decision_tree.draw()
         bool_to_obdd.draw_obdd(root_center=self.root_center)
 

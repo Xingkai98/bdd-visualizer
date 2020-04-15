@@ -4,6 +4,8 @@ from ParsingUtility import ParsingUtility
 import sys
 from antlr4 import InputStream
 from img_frame import ImgFrame
+from bool_expr_to_obdd import *
+from list_permuter import *
 
 class BddDemo(tk.Tk):
 
@@ -50,9 +52,12 @@ class BddDemo(tk.Tk):
         self.set_variable_seq_button = tk.Button(self, text='更新变量顺序', command=self.set_variable_seq)
         self.set_variable_seq_button.pack(side=tk.BOTTOM, fill=tk.X)
 
+        self.set_variable_seq_button = tk.Button(self, text='更新变量顺序为最简', command=self.set_variable_seq_as_optimal)
+        self.set_variable_seq_button.pack(side=tk.BOTTOM, fill=tk.X)
+
         self.colour_schemes = [{"bg": "lightgrey", "fg": "black"}, {"bg": "grey", "fg": "white"}]
 
-
+    # 更新命题取值
     def set_variable_value(self, event=None):
         var_text = str(self.text_input.get(1.0, tk.END).strip())
 
@@ -79,19 +84,7 @@ class BddDemo(tk.Tk):
         new_result = self.p.get_parse_result(text=self.expr, variables=self.variables)
         self.expr_label["text"] = self.expr + ': ' + str(new_result)
 
-        '''
-        _, task_style_choice = divmod(len(self.vars), 2)
-
-        my_scheme_choice = self.colour_schemes[task_style_choice]
-
-        new_var.configure(bg=my_scheme_choice["bg"])
-        new_var.configure(fg=my_scheme_choice["fg"])
-
-        new_var.pack(side=tk.TOP, fill=tk.X)
-
-        self.vars.append(new_var)
-        '''
-
+    # 更新命题顺序并重画
     def set_variable_seq(self,event=None):
         variables = {}
         var_list = []
@@ -111,24 +104,44 @@ class BddDemo(tk.Tk):
             self.var_sequence_label["text"] += str(var) + ', '
 
         self.update_image()
-        '''
-        if self.expr != '':
-            self.img.pack_forget()
-            self.img = ImgFrame(expr=self.expr, var_list=self.var_list,
-                                root_frame_geometry=[self.width, self.height],
-                                variables=self.variables)
-            self.img.pack()
-        else:
-            msgbox.showerror('错误','输入不能为空。')
-            return
-        '''
 
+    # 更新命题顺序为复杂度最低的OBDD并重画
+    def set_variable_seq_as_optimal(self):
+        lp = ListPermuter()
+        var_list_permuted = lp.permute(self.var_list)
+
+        smallest_num = -1
+        result = var_list_permuted[0]
+
+        for var_list in var_list_permuted:
+            bool_to_obdd = BoolExprToOBDD(bool_expr=self.expr,
+                                          var_list=var_list,
+                                          variables=self.variables)
+            bool_to_obdd.generate_inf(generate_decision_tree=False,
+                                      debug=True)
+            node_num = bool_to_obdd.get_obdd_node_num()
+            if smallest_num < 0:
+                smallest_num = node_num
+            if node_num < smallest_num:
+                smallest_num = node_num
+                result = var_list
+            print(var_list)
+            print(str(node_num))
+        print('最简变量顺序:')
+        print(result)
+        print(str(smallest_num))
+        self.var_list = result
+        self.update_var_seq_text()
+        self.update_image(text=self.expr)
+
+
+    # 更新表达式并重新画图
     def update_expr(self, event=None):
 
         text = str(self.text_input.get(1.0, tk.END).strip())
         self.expr = text
 
-        # 每次需要从表达式中更新变量
+        # 每次需要从表达式中更新命题
         self.var_list = self.p.get_variable_list(text=text)
         self.var_sequence_label["text"] = '变量顺序： '
         for var in self.var_list:
@@ -139,15 +152,15 @@ class BddDemo(tk.Tk):
         self.expr_label["text"] = text
 
         self.update_image(text=text)
-        '''
-        if self.expr != '':
-            self.img.pack_forget()
-            self.img = ImgFrame(expr=text, var_list=self.var_list,
-                           root_frame_geometry=[self.width,self.height],
-                           variables=self.variables)
-            self.img.pack()
-        '''
 
+    # 根据当前的命题顺序改变显示的文字
+    def update_var_seq_text(self):
+        self.var_sequence_label["text"] = '变量顺序： '
+        for var in self.var_list:
+            self.var_sequence_label["text"] += str(var) + ', '
+        self.var_sequence_label["text"] = self.var_sequence_label["text"][:-2]
+
+    # 根据当前的表达式和命题顺序画图
     def update_image(self, text=None):
         expr = self.expr
         if text:
@@ -158,6 +171,7 @@ class BddDemo(tk.Tk):
             self.img = ImgFrame(expr=expr, var_list=self.var_list,
                                 root_frame_geometry=[self.width, self.height],
                                 variables=self.variables)
+            self.img.draw()
             self.img.pack()
         else:
             msgbox.showerror('错误','输入不能为空。')

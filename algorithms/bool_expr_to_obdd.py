@@ -3,7 +3,7 @@ import queue
 from painter import *
 
 class Obj:
-    def __init__(self,a,current_var,node):
+    def __init__(self,a,current_var,node=None):
         self.a = a
         self.current_var = current_var
         self.node = node
@@ -18,6 +18,8 @@ class BoolExprToOBDD:
     inf_list = []                  # INF范式
     decision_tree = None           # 决策树
     simplified_inf_list = []       # 简化后的INF范式
+    simp_inf_node_num = 0          # 简化后的INF范式节点数
+    simp_inf_edge_num = 0          # 简化后的INF范式边数
     simplified_inf_dict = {}       # 根据a得到INF范式的字典{'001': INFExpr,...}
     obdd_tree = None               # OBDD
     obdd_node = {}                 # 根据变量名得到OBDD节点坐标列表
@@ -36,54 +38,78 @@ class BoolExprToOBDD:
 
         self.p = ParsingUtility()
         self.generate_result_table()  # 得到真值表
-        print('真值表：')
-        print(self.result_table)
+        #print('真值表：')
+        #print(self.result_table)
 
-        self.generate_inf_list()  # 得到INF以及决策树
-        self.simplify_inf_list()  # 得到简化后的INF
+    def generate_inf(self, generate_decision_tree=True, debug=False):
+        self.generate_inf_list(generate_decision_tree=generate_decision_tree,
+                               debug=False)
+        self.simplify_inf_list(debug=debug)  # 得到简化后的INF
 
-    def generate_inf_list(self):
+    def generate_inf_list(self, generate_decision_tree=True, debug=False):
         self.inf_list.clear()
         decay = 10
-        root_node = Node(canvas=self.canvas, center=self.root_center,
-                         text=self.var_list[0],
-                         d=60, h=60)
-        print("INF范式：")
+        if generate_decision_tree is True:
+            root_node = Node(canvas=self.canvas, center=self.root_center,
+                             text=self.var_list[0],
+                             d=60, h=60)
+            init_obj = Obj(a='', current_var=self.var_list[0], node=root_node)
+        else:
+            init_obj = Obj(a='', current_var=self.var_list[0])
+
+        if debug is True:
+            print("INF范式：")
         q = queue.Queue()
-        init_obj = Obj(a='',current_var=self.var_list[0],node=root_node)
         q.put(init_obj)
+
         while not q.empty():
             cur_obj = q.get()
             l = self.create_inf_bfs(a=cur_obj.a,current_var=cur_obj.current_var)
-            #print(l)
-            #len(l) 说明两子节点都非终端节点，若l[0]l[1]都为bool则都为终端节点
-            if len(l):
-                # '1' right
-                if l[0] is not False and l[0] is not True:
-                    cur_obj.node.create_child_node(direc='right',text=l[0][1],
-                                                    decay=decay)
-                    child_node = cur_obj.node.right_child
-                    obj = Obj(a=l[0][0],current_var=l[0][1],node=child_node)
-                    q.put(obj)
-                else:
-                    cur_obj.node.create_child_node(direc='right', text=str(int(l[0])),
-                                                   decay=decay, isLeaf=True)
-                # '0' left
-                if l[1] is not False and l[1] is not True:
-                    cur_obj.node.create_child_node(direc='left', text=l[1][1],
-                                                    decay=decay)
-                    child_node = cur_obj.node.left_child
-                    obj = Obj(a=l[1][0], current_var=l[1][1],node=child_node)
-                    q.put(obj)
-                else:
-                    cur_obj.node.create_child_node(direc='left', text=str(int(l[1])),
-                                                   decay=decay, isLeaf=True)
-        for inf in self.inf_list:
-            print(inf.to_str())
 
-        self.decision_tree = Tree(root_node=root_node)
+            if generate_decision_tree is True:
+                # len(l) 说明两子节点都非终端节点，若l[0]l[1]都为bool则都为终端节点
+                if len(l):
+                    # '1' right
+                    if l[0] is not False and l[0] is not True:
+                        cur_obj.node.create_child_node(direc='right', text=l[0][1],
+                                                       decay=decay)
+                        child_node = cur_obj.node.right_child
+                        obj = Obj(a=l[0][0], current_var=l[0][1], node=child_node)
+                        q.put(obj)
+                    else:
+                        cur_obj.node.create_child_node(direc='right', text=str(int(l[0])),
+                                                       decay=decay, isLeaf=True)
+                    # '0' left
+                    if l[1] is not False and l[1] is not True:
+                        cur_obj.node.create_child_node(direc='left', text=l[1][1],
+                                                       decay=decay)
+                        child_node = cur_obj.node.left_child
+                        obj = Obj(a=l[1][0], current_var=l[1][1], node=child_node)
+                        q.put(obj)
+                    else:
+                        cur_obj.node.create_child_node(direc='left', text=str(int(l[1])),
+                                                       decay=decay, isLeaf=True)
+            else:
+                # len(l) 说明两子节点都非终端节点，若l[0]l[1]都为bool则都为终端节点
+                if len(l):
+                    # '1' right
+                    if l[0] is not False and l[0] is not True:
+                        obj = Obj(a=l[0][0], current_var=l[0][1])
+                        q.put(obj)
 
-    def simplify_inf_list(self):
+                    # '0' left
+                    if l[1] is not False and l[1] is not True:
+                        obj = Obj(a=l[1][0], current_var=l[1][1])
+                        q.put(obj)
+
+        if debug is True:
+            for i in self.inf_list:
+                print(i.to_str())
+
+        if generate_decision_tree is True:
+            self.decision_tree = Tree(root_node=root_node)
+
+    def simplify_inf_list(self, debug=False):
         self.simplified_inf_list.clear()
         if len(self.inf_list) <= 1:
             self.simplified_inf_list = self.inf_list
@@ -115,15 +141,60 @@ class BoolExprToOBDD:
         for inf in self.simplified_inf_list:
             self.simplified_inf_dict[inf.a] = inf
 
-        print('简化后的INF:')
-        for inf in self.simplified_inf_list:
-            print(inf.to_str())
+        if debug is True:
+            print('简化后的INF:')
+            for inf in self.simplified_inf_list:
+                print(inf.to_str())
+
+    # l = [ [a,next_var]|bool, [a,next_var]|bool]
+    # 若为bool则表明该子节点为终端节点
+    def create_inf_bfs(self, a='', current_var=None):
+        l = [[a, current_var], [a, current_var]]
+        branch = [a + '1', a + '0']
+        for index, i in enumerate(branch):
+            if len(i) == len(self.var_list):
+                branch[index] = self.result_table[i]
+            else:
+                all = [j for j in self.result_table if j[:len(i)] == i]
+                # 是否其余变量的所有取值对应的结果都相同
+                if len(all):
+                    flag = True
+                    for other in all:
+                        if self.result_table[other] != self.result_table[all[0]]:
+                            flag = False
+                    if flag:
+                        branch[index] = self.result_table[all[0]]
+        inf = INFExpr(a=a, current_var=current_var,
+                      b1=branch[0], b2=branch[1])
+        self.inf_list.append(inf)
+
+        if len(a) == len(self.var_list) - 1:
+            return [branch[0], branch[1]]
+
+        next_var = ''
+        for index, var in enumerate(self.var_list):
+            if var == current_var and index < len(self.var_list) - 1:
+                next_var = self.var_list[index + 1]
+
+        l[0][0] = branch[0]
+        l[0][1] = next_var
+        l[1][0] = branch[1]
+        l[1][1] = next_var
+
+        if branch[0] is False or branch[0] is True:
+            l[0] = branch[0]
+        if branch[1] is False or branch[1] is True:
+            l[1] = branch[1]
+        return l
+
+    def get_obdd_node_num(self):
+        return len(self.simplified_inf_list)
 
     def draw_obdd(self,
-                  root_center=(0,0),             # 起始变量的坐标
-                  vertical_space=60,     # 变量间竖直距离
-                  horizontal_space=60,   # 每行变量的横向距离
-                  ):
+                  root_center=(0,0),            # 起始变量的坐标
+                  h=60,            # 变量间竖直距离
+                  w=40,          # 每行变量的横向距离
+                  debug=False):
         self.obdd_node.clear()
         self.a_to_node.clear()
 
@@ -138,9 +209,9 @@ class BoolExprToOBDD:
                 if cur_var == var:   # 找到当前变量
                     inf.index = var_num
                     var_num += 1
-            print(var + ': ' + str(var_num))
+            #print(var + ': ' + str(var_num))
             coord_list = []  # 暂存每行节点的中心位置（从右到左）
-            y = root_center[1] + index * vertical_space
+            y = root_center[1] + index * h
             root_x = root_center[0]
             if var_num == 1:  # 一个变量
                 coord_list.append((root_x,y))
@@ -149,9 +220,9 @@ class BoolExprToOBDD:
                                             text=var)] # 生成节点列表
                 continue
             if var_num % 2:  # 奇数个变量
-                start = int(root_x + var_num / 2 * horizontal_space)
-                end = int(root_x - (var_num / 2 + 1) * horizontal_space)
-                step = -int(horizontal_space)
+                start = int(root_x + var_num // 2 * w * 2)
+                end = int(root_x - (var_num // 2 + 1) * w * 2)
+                step = -int(w * 2)
                 for x in range(start,end,step):
                     coord_list.append((x,y))
                     self.obdd_node[var].append(Node(canvas=self.canvas,
@@ -159,27 +230,29 @@ class BoolExprToOBDD:
                                                     text=var)) # append入节点列表
 
             else:            # 偶数个变量
-                start = int(root_x + var_num / 2 * horizontal_space - horizontal_space / 2)
-                end = int(root_x - var_num / 2 * horizontal_space - horizontal_space / 2)
-                step = -int(horizontal_space)
+                start = int(root_x + (var_num - 1) * w)
+                end = int(root_x - (var_num - 1) * w - 2 * w)
+                step = -int(w * 2)
                 for x in range(start,end,step):
                     coord_list.append((x,y))
                     self.obdd_node[var].append(Node(canvas=self.canvas,
                                                     center=(x, y),
                                                     text=var)) # append入节点列表
 
-        terminal_y = int(self.root_center[1] + len(self.var_list) * vertical_space) # 终端节点的y值
+        terminal_y = int(self.root_center[1] + len(self.var_list) * h) # 终端节点的y值
         self.obdd_node['0'] = [LeafNode(canvas=self.canvas,
-                                        center=(int(self.root_center[0] - horizontal_space/2), terminal_y),
+                                        center=(int(self.root_center[0] - w * 1.5), terminal_y),
                                         text='0')]
         self.obdd_node['1'] = [LeafNode(canvas=self.canvas,
-                                        center=(int(self.root_center[0] + horizontal_space/2), terminal_y),
+                                        center=(int(self.root_center[0]), terminal_y),
                                         text='1')]
-        for var in self.obdd_node:
-            print(var)
-            node_list = self.obdd_node[var]
-            for node in node_list:
-                print(node.center)
+
+        if debug is True:
+            for var in self.obdd_node:
+                print(var)
+                node_list = self.obdd_node[var]
+                for node in node_list:
+                    print(node.center)
 
         # 画OBDD节点之间的连线
         for inf in self.simplified_inf_list:
@@ -205,7 +278,7 @@ class BoolExprToOBDD:
                 b2_index = self.simplified_inf_dict[inf.b2].index
                 b2_node = self.obdd_node[b2_varname][b2_index]
 
-            # 画线(b1)
+            # 画线(b1)，目前是画直线
             start_node.draw_line_towards(node=b1_node,isDashed=False)
             start_node.draw_line_towards(node=b2_node,isDashed=True)
 
@@ -214,49 +287,6 @@ class BoolExprToOBDD:
             node_list = self.obdd_node[var]
             for node in node_list:
                 node.draw_center()
-        
-
-    # l = [ [a,next_var]|bool, [a,next_var]|bool]
-    # 若为bool则表明该子节点为终端节点
-    def create_inf_bfs(self, a='', current_var=None):
-        l = [[a,current_var],[a,current_var]]
-        branch = [a+'1',a+'0']
-        for index, i in enumerate(branch):
-            if len(i) == len(self.var_list):
-                branch[index] = self.result_table[i]
-            else:
-                all = [j for j in self.result_table if j[:len(i)] == i]
-                #是否其余变量的所有取值对应的结果都相同
-                if len(all):
-                    flag = True
-                    for other in all:
-                        if self.result_table[other] != self.result_table[all[0]]:
-                            flag = False
-                    if flag:
-                        branch[index] = self.result_table[all[0]]
-        inf = INFExpr(a=a,current_var=current_var,
-                      b1=branch[0],b2=branch[1])
-        self.inf_list.append(inf)
-
-        if len(a) == len(self.var_list)-1:
-            return [branch[0], branch[1]]
-
-        next_var = ''
-        for index, var in enumerate(self.var_list):
-            if var == current_var and index<len(self.var_list)-1:
-                next_var = self.var_list[index+1]
-
-        l[0][0] = branch[0]
-        l[0][1] = next_var
-        l[1][0] = branch[1]
-        l[1][1] = next_var
-
-
-        if branch[0] is False or branch[0] is True:
-            l[0] = branch[0]
-        if branch[1] is False or branch[1] is True:
-            l[1] = branch[1]
-        return l
 
     # '{'x1'=1,x2=0'}' <==> '10'
     def dict_to_str(self, variables):
