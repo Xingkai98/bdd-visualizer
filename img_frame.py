@@ -36,7 +36,9 @@ class ImgFrame(Frame):
         bool_to_obdd.generate_inf(generate_decision_tree=True,
                                   debug=True)
         #bool_to_obdd.decision_tree.draw()
-        bool_to_obdd.draw_obdd(root_center=self.root_center)
+        bool_to_obdd.draw_obdd(root_center=self.root_center,
+                               highlight=True,
+                               variables=self.variables)
 
         self.canvas.pack(fill=BOTH, expand=1)
 

@@ -1,6 +1,6 @@
 import copy
 
-class ListPermuter:
+class ListPermuter:   # 得到列表的全排列
 
     def permute(self, input):
         self.result = []

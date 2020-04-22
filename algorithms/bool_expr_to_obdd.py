@@ -23,7 +23,7 @@ class BoolExprToOBDD:
     simplified_inf_dict = {}       # 根据a得到INF范式的字典{'001': INFExpr,...}
     obdd_tree = None               # OBDD
     obdd_node = {}                 # 根据变量名得到OBDD节点坐标列表
-    a_to_node =  {}                # 根据a得到变量节点及下标顺序
+    a_to_node = {}                 # 根据a得到变量节点及下标顺序
 
     def __init__(self, canvas=None, var_list=None,
                  default_var='t', bool_expr='',
@@ -190,13 +190,58 @@ class BoolExprToOBDD:
     def get_obdd_node_num(self):
         return len(self.simplified_inf_list)
 
+    # 对 self.simplified_inf_list根据变量取值进行高亮
+    def highlight_inf_and_node(self, variables=None):
+        print(variables)
+        if len(self.simplified_inf_list) == 0: # INF列表为空则退出
+            return
+        tmp_inf = self.simplified_inf_list[0]
+
+        # 对高亮节点所在的式子进行高亮
+        while True:
+            tmp_inf.highlight()
+            print(tmp_inf.current_var + ' highlighted.')
+            val = variables[tmp_inf.current_var]
+            if isinstance(tmp_inf.b1, bool) and isinstance(tmp_inf.b2, bool):
+                break
+            if val is True:  # 指向b1
+                if isinstance(tmp_inf.b1, bool):  # 若指向0或1的终端节点，则退出
+                    break
+                tmp_inf = self.simplified_inf_dict[tmp_inf.b1]
+            elif val is False:  # 指向b2
+                if isinstance(tmp_inf.b2, bool):  # 若指向0或1的终端节点，则退出
+                    break
+                tmp_inf = self.simplified_inf_dict[tmp_inf.b2]
+            else:
+                continue
+        for i in self.simplified_inf_list:
+            if i.is_highlighted:
+                this_node = self.obdd_node[i.current_var][i.index]  # 找出当前节点
+                this_node.highlight()
+                print(this_node.text + ' index: ' + str(i.index) + ' highlighted.')
+
+                # 如果指向尾端0或1节点，对其进行高亮
+                if variables[i.current_var]:  # 指向b1
+                    if isinstance(i.b1, bool):
+                        self.obdd_node[str(int(i.b1))][0].highlight()
+                elif variables[i.current_var] is False:  # 指向b2
+                    if isinstance(i.b2, bool):
+                        self.obdd_node[str(int(i.b2))][0].highlight()
+                else:
+                    continue
+
     def draw_obdd(self,
                   root_center=(0,0),            # 起始变量的坐标
                   h=60,            # 变量间竖直距离
                   w=40,          # 每行变量的横向距离
+                  highlight=False,    # 是否高亮，若高亮则需用到variables
+                  variables=None,
                   debug=False):
         self.obdd_node.clear()
         self.a_to_node.clear()
+
+        if variables and len(variables):  # 更新变量取值以便高亮
+            self.variables = variables
 
         for var in self.var_list:
             self.obdd_node[var] = []
@@ -239,12 +284,12 @@ class BoolExprToOBDD:
                                                     center=(x, y),
                                                     text=var)) # append入节点列表
 
-        terminal_y = int(self.root_center[1] + len(self.var_list) * h) # 终端节点的y值
+        terminal_y = int(self.root_center[1] + len(self.var_list) * h) # 终端节点坐标的y值
         self.obdd_node['0'] = [LeafNode(canvas=self.canvas,
                                         center=(int(self.root_center[0] - w * 1.5), terminal_y),
                                         text='0')]
         self.obdd_node['1'] = [LeafNode(canvas=self.canvas,
-                                        center=(int(self.root_center[0]), terminal_y),
+                                        center=(int(self.root_center[0] + w * 1.5), terminal_y),
                                         text='1')]
 
         if debug is True:
@@ -254,21 +299,24 @@ class BoolExprToOBDD:
                 for node in node_list:
                     print(node.center)
 
-        # 画OBDD节点之间的连线
-        for inf in self.simplified_inf_list:
-            # 找出起点位置
-            start_node = self.obdd_node[inf.current_var][inf.index]
+        # 根据现有变量取值对路径进行高亮
+        self.highlight_inf_and_node(variables=variables)
 
-            # 找出终点位置
+        # 对于INF中的每一条，画OBDD节点之间的连线
+        for inf in self.simplified_inf_list:
+            start_node = self.obdd_node[inf.current_var][inf.index]  # 找出起点位置
+
+            # 找出终点位置（高端）
             if inf.b1 == False:
                 b1_node = self.obdd_node['0'][0]
             elif inf.b1 == True:
                 b1_node = self.obdd_node['1'][0]
             else:
-                b1_varname = self.simplified_inf_dict[inf.b1].current_var
-                b1_index = self.simplified_inf_dict[inf.b1].index
-                b1_node = self.obdd_node[b1_varname][b1_index]
+                b1_varname = self.simplified_inf_dict[inf.b1].current_var  # 变量名
+                b1_index = self.simplified_inf_dict[inf.b1].index  # 顺序
+                b1_node = self.obdd_node[b1_varname][b1_index]  # 获取节点
 
+            # 找出终点位置（低端）
             if inf.b2 == False:
                 b2_node = self.obdd_node['0'][0]
             elif inf.b2 == True:
@@ -278,7 +326,7 @@ class BoolExprToOBDD:
                 b2_index = self.simplified_inf_dict[inf.b2].index
                 b2_node = self.obdd_node[b2_varname][b2_index]
 
-            # 画线(b1)，目前是画直线
+            # 画线
             start_node.draw_line_towards(node=b1_node,isDashed=False)
             start_node.draw_line_towards(node=b2_node,isDashed=True)
 
@@ -287,6 +335,7 @@ class BoolExprToOBDD:
             node_list = self.obdd_node[var]
             for node in node_list:
                 node.draw_center()
+                print(node.text + ' ' + str(node.is_highlighted))
 
     # '{'x1'=1,x2=0'}' <==> '10'
     def dict_to_str(self, variables):
@@ -327,6 +376,7 @@ class BoolExprToOBDD:
 class INFExpr:
 
     index = 0 # 表明当前的current_var在所有相同变量的下标顺序
+    highlighted = False # 是否高亮
 
     def __init__(self, t='t', a='', current_var=None, b1=None, b2=None,
                  tree_position=None):
@@ -341,6 +391,13 @@ class INFExpr:
         self.b2 = b2
 
         self.tree_position = tree_position
+
+    def highlight(self):
+        self.highlighted = True
+
+    @property
+    def is_highlighted(self):
+        return self.highlighted
 
     def to_str(self):
         s = self.t + self.a + ' = ' + self.current_var + ' -> '

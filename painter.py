@@ -2,6 +2,9 @@ from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 
 class Node:
 
+    highlight_color = 'blue'  # 高亮路径的颜色
+    highlighted = False  # 默认非高亮
+
     def __init__(self, canvas=None, center=(0,0), r=15,
                  d=40, h=60, dash=(4,4), decay=10,
                  left_child=None, right_child=None, text=None):
@@ -16,6 +19,14 @@ class Node:
         self.text = text
         self.decay = decay
 
+    def highlight(self):
+        self.highlighted = True
+
+    @property
+    def is_highlighted(self):
+        return self.highlighted
+
+    # 绘制二叉树相关
     def create_child_node(self, direc=None, d=None, h=None,
                           isLeaf=False, text=None, decay=None):
 
@@ -47,15 +58,28 @@ class Node:
             child_node.center = [x + self.d, y + self.h]
             self.right_child = child_node
 
-    def draw_text(self):
+    def draw_text(self, highlight = False):
         if self.text:
-            self.canvas.create_text(self.center[0], self.center[1], anchor=CENTER, font="Purisa",
-                                    text=str(self.text))
+            if self.is_highlighted or highlight is True:
+                self.canvas.create_text(self.center[0], self.center[1], anchor=CENTER, font="Purisa",
+                                        text=str(self.text),
+                                        fill=self.highlight_color)
+            else:
+                self.canvas.create_text(self.center[0], self.center[1], anchor=CENTER, font="Purisa",
+                                        text=str(self.text),
+                                        fill='black')
 
-    def draw_center(self):
-        self.canvas.create_oval(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r, outline="black",
-                                fill="white", width=1)
-        self.draw_text()
+    def draw_center(self, highlight = False):
+        if self.is_highlighted or highlight is True:
+            self.canvas.create_oval(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r,
+                                    outline=self.highlight_color,
+                                    fill="white", width=2)
+        else:
+            self.canvas.create_oval(self.center[0] - self.r, self.center[1] - self.r, self.center[0] + self.r,
+                                    self.center[1] + self.r,
+                                    outline="black",
+                                    fill="white", width=1)
+        self.draw_text(highlight=highlight)
 
     def draw_left_line(self):
         self.canvas.create_line(self.center[0], self.center[1],
@@ -66,31 +90,48 @@ class Node:
         self.canvas.create_line(self.center[0], self.center[1],
                                 self.center[0] + self.d, self.center[1] + self.h)
 
-    def draw_line_manual(self, isDashed, d, h):
+    def draw_line_manual(self, isDashed, d, h, highlight = None):
+        color = 'black'
+        if highlight is True:
+            color = self.highlight_color
         if isDashed:
             self.canvas.create_line(self.center[0], self.center[1],
                                     self.center[0] + d, self.center[1] + h,
-                                    dash=self.dash)
+                                    dash=self.dash, fill=color)
         else:
             self.canvas.create_line(self.center[0], self.center[1],
-                                    self.center[0] + d, self.center[1] + h)
+                                    self.center[0] + d, self.center[1] + h,
+                                    fill=color)
 
-    def draw_line_towards(self, isDashed, node):
+    def draw_line_towards(self, isDashed, node, highlight=False):
+        width = 1
+        color = 'black'
+        if highlight or (self.is_highlighted and node.is_highlighted) is True:
+            color = self.highlight_color
+            width = 2
         if isDashed:
             self.canvas.create_line(self.center[0], self.center[1],
                                     node.center[0], node.center[1],
-                                    dash=self.dash)
+                                    dash=self.dash, fill=color,
+                                    width=width)
         else:
             self.canvas.create_line(self.center[0], self.center[1],
-                                    node.center[0], node.center[1])
+                                    node.center[0], node.center[1],
+                                    fill=color,
+                                    width=width)
 
 class LeafNode(Node):
 
-    def draw_center(self, text=None, r=15):
+    def draw_center(self, text=None, r=15, highlight=False):
         self.r = r
-        self.canvas.create_rectangle(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r,
-                                     outline='black',fill='white',width=1)
-        self.draw_text()
+        if self.is_highlighted or highlight is True:
+            self.canvas.create_rectangle(self.center[0]-self.r, self.center[1]-self.r, self.center[0]+self.r, self.center[1]+self.r,
+                                         outline=self.highlight_color,fill='white',width=2)
+        else:
+            self.canvas.create_rectangle(self.center[0] - self.r, self.center[1] - self.r, self.center[0] + self.r,
+                                         self.center[1] + self.r,
+                                         outline="black", fill='white', width=1)
+        self.draw_text(highlight=highlight)
 
     def draw_left_line(self):
         pass

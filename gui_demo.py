@@ -57,13 +57,12 @@ class BddDemo(tk.Tk):
 
         self.colour_schemes = [{"bg": "lightgrey", "fg": "black"}, {"bg": "grey", "fg": "white"}]
 
-    # 更新命题取值
+    # 更新命题取值并重画，字典的key为变量名，value为bool值
     def set_variable_value(self, event=None):
         var_text = str(self.text_input.get(1.0, tk.END).strip())
 
         if len(var_text) > 0 and '=' in var_text:
             pass
-            # new_var = tk.Label(self, text=var_text, pady=10)
         else:
             msgbox.showwarning('提示','请输入变量赋值语句。')
             return
@@ -83,6 +82,7 @@ class BddDemo(tk.Tk):
                 return
         new_result = self.p.get_parse_result(text=self.expr, variables=self.variables)
         self.expr_label["text"] = self.expr + ': ' + str(new_result)
+        self.update_image()
 
     # 更新命题顺序并重画
     def set_variable_seq(self,event=None):
@@ -144,8 +144,9 @@ class BddDemo(tk.Tk):
         # 每次需要从表达式中更新命题
         self.var_list = self.p.get_variable_list(text=text)
         self.var_sequence_label["text"] = '变量顺序： '
+        self.variables.clear()
         for var in self.var_list:
-            self.variables[var] = False
+            self.variables[var] = False   # 默认设置每个变量的取值为False
             self.var_sequence_label["text"] += str(var) + ', '
 
         self.var_sequence_label["text"] = self.var_sequence_label["text"][:-2]
