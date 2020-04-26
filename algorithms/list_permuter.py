@@ -20,5 +20,5 @@ class ListPermuter:   # 得到列表的全排列
 
 if __name__ == '__main__':
     lp = ListPermuter()
-    print(lp.permute(['a','b','c']))
+    print(lp.permute([1,2,3]))
 
