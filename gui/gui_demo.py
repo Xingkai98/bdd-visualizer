@@ -1,8 +1,5 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
-from ParsingUtility import ParsingUtility
-import sys
-from antlr4 import InputStream
 from img_frame import ImgFrame
 from bool_expr_to_obdd import *
 from list_permuter import *

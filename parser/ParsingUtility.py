@@ -7,9 +7,6 @@ from EvaluationVisitor import EvaluationVisitor
 
 class ParsingUtility:
 
-    def read_from_file(self, path):
-        pass
-
     # 返回 True 或 False (bool type)
     def get_parse_result(self, text, variables):
         antlr_input = InputStream(text)

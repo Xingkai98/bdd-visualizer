@@ -70,6 +70,6 @@ class Application(ttk.Notebook):
         self.add(tab2, text="Tab 2")
         self.add(tab3, text="Tab 3")
 
-
-root = Root()
-root.mainloop()
+if __name__ == '__main__':
+    root = Root()
+    root.mainloop()
