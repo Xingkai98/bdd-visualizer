@@ -1,6 +1,4 @@
-from tkinter import Tk, Canvas, Frame, BOTH, W
-from painter import *
-from bool_expr_to_obdd import *
+from bool_expr_to_bdd import *
 
 class ImgFrame(Frame):
 

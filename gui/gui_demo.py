@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
 from img_frame import ImgFrame
-from bool_expr_to_obdd import *
+from bool_expr_to_bdd import *
 from list_permuter import *
 
 class BddDemo(tk.Tk):
@@ -12,7 +12,7 @@ class BddDemo(tk.Tk):
     width = 1024
     height = 768
     img = None
-    p = ParsingUtility()
+    p = AntlrFacility()
 
     def __init__(self, vars=None):
         super().__init__()

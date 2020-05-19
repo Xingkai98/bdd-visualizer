@@ -1,5 +1,6 @@
 from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 
+
 class Node:
 
     highlight_color = 'blue'  # 高亮路径的颜色

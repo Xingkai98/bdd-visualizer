@@ -1,6 +1,6 @@
-from ParsingUtility import *
+from antlr_facility import *
 import queue
-from painter import *
+from graph_node import *
 
 class Obj:
     def __init__(self,a,current_var,node=None):
@@ -36,7 +36,7 @@ class BoolExprToOBDD:
         self.bool_expr = bool_expr
         self.root_center = root_center
 
-        self.p = ParsingUtility()
+        self.p = AntlrFacility()
         self.generate_result_table()  # 得到真值表
         #print('真值表：')
         #print(self.result_table)

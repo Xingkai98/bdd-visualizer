@@ -3,10 +3,11 @@ from antlr4 import *
 from BooleanExprLexer import BooleanExprLexer
 from BooleanExprParser import BooleanExprParser
 from BooleanExprVisitor import BooleanExprVisitor
-from EvaluationVisitor import EvaluationVisitor
+from evaluation_visitor import EvaluationVisitor
 
-class ParsingUtility:
+# 对Antlr生成的代码进行封装
 
+class AntlrFacility:
     # 返回 True 或 False (bool type)
     def get_parse_result(self, text, variables):
         antlr_input = InputStream(text)
@@ -35,11 +36,10 @@ class ParsingUtility:
 
         return value
 
-
 def main(argv):
     while True:
         text = str(InputStream(input(">")))
-        p = ParsingUtility()
+        p = AntlrFacility()
         print('=', str(p.get_variable_list(text)))
 
 if __name__ == '__main__':

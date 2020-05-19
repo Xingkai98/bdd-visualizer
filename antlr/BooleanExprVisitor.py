@@ -1,5 +1,5 @@
 # Generated from BooleanExpr.g4 by ANTLR 4.8
-from EvaluationVisitor import *
+from evaluation_visitor import *
 from antlr4 import *
 if __name__ is not None and "." in __name__:
     from .BooleanExprParser import BooleanExprParser
