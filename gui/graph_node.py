@@ -1,6 +1,5 @@
 from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 
-
 class Node:
 
     highlight_color = 'blue'  # 高亮路径的颜色
@@ -8,15 +7,15 @@ class Node:
 
     def __init__(self, canvas=None, center=(0,0), r=15,
                  d=40, h=60, dash=(4,4), decay=10,
-                 left_child=None, right_child=None, text=None):
+                 low_child=None, high_child=None, text=None):
         self.canvas = canvas
         self.center = center
         self.r = r
         self.d = d
         self.h = h
         self.dash = dash
-        self.left_child = left_child
-        self.right_child = right_child
+        self.low_child = low_child
+        self.high_child = high_child
         self.text = text
         self.decay = decay
 
@@ -52,12 +51,12 @@ class Node:
         if text:
             child_node.text = text
 
-        if direc == 'left':
+        if direc == 'low':
             child_node.center = [x - self.d, y + self.h]
-            self.left_child = child_node
-        elif direc == 'right':
+            self.low_child = child_node
+        elif direc == 'high':
             child_node.center = [x + self.d, y + self.h]
-            self.right_child = child_node
+            self.high_child = child_node
 
     def draw_text(self, highlight = False):
         if self.text:
@@ -82,12 +81,12 @@ class Node:
                                     fill="white", width=1)
         self.draw_text(highlight=highlight)
 
-    def draw_left_line(self):
+    def draw_low_line(self):
         self.canvas.create_line(self.center[0], self.center[1],
                                 self.center[0] - self.d, self.center[1] + self.h,
                                 dash=self.dash)
 
-    def draw_right_line(self):
+    def draw_high_line(self):
         self.canvas.create_line(self.center[0], self.center[1],
                                 self.center[0] + self.d, self.center[1] + self.h)
 
@@ -134,10 +133,10 @@ class LeafNode(Node):
                                          outline="black", fill='white', width=1)
         self.draw_text(highlight=highlight)
 
-    def draw_left_line(self):
+    def draw_low_line(self):
         pass
 
-    def draw_right_line(self):
+    def draw_high_line(self):
         pass
 
 
@@ -148,20 +147,20 @@ class Tree:
 
     def draw_all_lines(self, node): # 画出所有连线
         if node:
-            node.draw_right_line()
-            node.draw_left_line()
-        if node.left_child:
-            self.draw_all_lines(node.left_child)
-        if node.right_child:
-            self.draw_all_lines(node.right_child)
+            node.draw_high_line()
+            node.draw_low_line()
+        if node.low_child:
+            self.draw_all_lines(node.low_child)
+        if node.high_child:
+            self.draw_all_lines(node.high_child)
 
     def draw_all_nodes(self, node): # 画出所有节点内容
         if node:
             node.draw_center()
-        if node.left_child:
-            self.draw_all_nodes(node.left_child)
-        if node.right_child:
-            self.draw_all_nodes(node.right_child)
+        if node.low_child:
+            self.draw_all_nodes(node.low_child)
+        if node.high_child:
+            self.draw_all_nodes(node.high_child)
 
     def draw(self): # 画出整个树
         self.draw_all_lines(self.root_node)

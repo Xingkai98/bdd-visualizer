@@ -190,6 +190,7 @@ class BoolExprToOBDD:
     def get_obdd_node_num(self):
         return len(self.simplified_inf_list)
 
+
     # 对 self.simplified_inf_list根据变量取值进行高亮
     def highlight_inf_and_node(self, variables=None):
         print(variables)
@@ -229,6 +230,8 @@ class BoolExprToOBDD:
                         self.obdd_node[str(int(i.b2))][0].highlight()
                 else:
                     continue
+
+
 
     def draw_obdd(self,
                   root_center=(0,0),            # 起始变量的坐标
@@ -300,7 +303,7 @@ class BoolExprToOBDD:
                     print(node.center)
 
         # 根据现有变量取值对路径进行高亮
-        self.highlight_inf_and_node(variables=variables)
+        #self.highlight_inf_and_node(variables=variables)
 
         # 对于INF中的每一条，画OBDD节点之间的连线
         for inf in self.simplified_inf_list:
