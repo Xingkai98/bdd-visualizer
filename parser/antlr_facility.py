@@ -8,25 +8,25 @@ from evaluation_visitor import EvaluationVisitor
 # 对Antlr生成的代码进行封装
 
 class AntlrFacility:
-    # 返回 True 或 False (bool type)
-    def get_parse_result(self, text, variables):
+
+    def get_ast(self, text):
         antlr_input = InputStream(text)
         lexer = BooleanExprLexer(antlr_input)
         stream = CommonTokenStream(lexer)
         parser = BooleanExprParser(stream)
         tree = parser.compileUnit()
         ast = BooleanExprVisitor().visitCompileUnit(tree)
+        return ast
+
+    # 返回 True 或 False (bool type)
+    def get_parse_result(self, text, variables):
+        ast = self.get_ast(text)
         value = EvaluationVisitor().visit(node=ast, variables=variables)
         return value
 
     # 返回变量列表
     def get_variable_list(self, text):
-        antlr_input = InputStream(text)
-        lexer = BooleanExprLexer(antlr_input)
-        stream = CommonTokenStream(lexer)
-        parser = BooleanExprParser(stream)
-        tree = parser.compileUnit()
-        ast = BooleanExprVisitor().visitCompileUnit(tree)
+        ast = self.get_ast(text)
         value = EvaluationVisitor().visit_for_var_list(node=ast)
 
         # 更新self.variables，默认设置为False

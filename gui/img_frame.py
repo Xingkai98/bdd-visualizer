@@ -33,8 +33,7 @@ class ImgFrame(Frame):
                                     root_center=self.root_center)
         il = bool_to_inf.get_inf_list(debug=True)
         idict = bool_to_inf.simplified_inf_dict
-        for each in il:
-            print(each.to_str())
+
         ib = INFToBDD()
         bdd = ib.get_bdd(var_list=self.var_list,
                          inf_list=il,
@@ -50,20 +49,6 @@ class ImgFrame(Frame):
                   var_list=self.var_list,
                   variables=self.variables,
                   debug=False)
-
-        #生成INF和BDD
-        '''
-        bool_to_obdd = BoolExprToOBDD(canvas=self.canvas,
-                                      bool_expr=self.expr,
-                                      var_list=self.var_list,
-                                      root_center=self.root_center)
-        bool_to_obdd.generate_inf(generate_decision_tree=True,
-                                  debug=True)
-        #画BDD
-        bool_to_obdd.draw_obdd(root_center=self.root_center,
-                               highlight=True,
-                               variables=self.variables)
-        '''
 
         self.canvas.pack(fill=BOTH, expand=1)
 

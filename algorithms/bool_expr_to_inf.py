@@ -121,7 +121,7 @@ class BoolExprToInf:
 
     def get_inf_list(self, generate_decision_tree=True, debug=False):
         self.generate_raw_inf_list(generate_decision_tree=generate_decision_tree,
-                               debug=False)
+                               debug=debug)
         self.simplify_inf_list(debug=debug)  # 得到简化后的INF
         return self.simplified_inf_list
 
@@ -196,7 +196,7 @@ class BoolExprToInf:
 
     def simplify_inf_list(self, debug=False):
         self.simplified_inf_list.clear()
-        if len(self.inf_list) <= 1:
+        if len(self.inf_list) <= 1:  # 若只有一条INF，则无需简化
             self.simplified_inf_list = self.inf_list
             return
         index = len(self.inf_list) - 1
@@ -230,6 +230,30 @@ class BoolExprToInf:
             print('简化后的INF:')
             for inf in self.simplified_inf_list:
                 print(inf.to_str())
+
+        # 从前向后再进行简化
+        for index, inf in enumerate(self.simplified_inf_list):
+            to_replace = ''
+            replaced_by = ''
+            if inf.b1 == inf.b2:
+                to_replace = inf.a
+                replaced_by = inf.b1
+                self.simplified_inf_list.remove(inf)
+            for j in range(index):
+                if inf.b1 == to_replace:
+                    inf.b1 = replaced_by
+                if inf.b2 == to_replace:
+                    inf.b2 = replaced_by
+
+        if debug is True:
+            print('简化后的INF:')
+            for inf in self.simplified_inf_list:
+                print(inf.to_str())
+
+
+
+
+
 
     # l = [ [a,next_var]|bool, [a,next_var]|bool]
     # 若为bool则表明该子节点为终端节点

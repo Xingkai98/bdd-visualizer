@@ -32,6 +32,7 @@ class BDD:
               var_list=None,
               variables=None,
               debug=False):
+        '''
         self.__var_to_node.clear()
         self.__a_to_node.clear()
 
@@ -96,6 +97,10 @@ class BDD:
 
         # 根据现有变量取值对路径进行高亮
         # self.highlight_inf_and_node(variables=variables)
+
+        '''
+        if variables and len(variables):  # 更新变量取值以便高亮
+            self.variables = variables
 
         # 对于INF中的每一条，画OBDD节点之间的连线
         for inf in inf_list:
