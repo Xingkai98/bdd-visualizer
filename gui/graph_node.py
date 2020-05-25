@@ -3,7 +3,6 @@ from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 class Node:
 
     highlight_color = 'blue'  # 高亮路径的颜色
-    highlighted = False  # 默认非高亮
 
     def __init__(self, canvas=None, center=(0,0), r=15,
                  d=40, h=60, dash=(4,4), decay=10,
@@ -16,15 +15,32 @@ class Node:
         self.dash = dash
         self.low_child = low_child
         self.high_child = high_child
+        self.__highlighted = False
+        self.__low_highlighted = False
+        self.__high_highlighted = False
         self.text = text
         self.decay = decay
 
     def highlight(self):
-        self.highlighted = True
+        self.__highlighted = True
+
+    def highlight_low_edge(self):
+        self.__low_highlighted = True
+
+    def highlight_high_edge(self):
+        self.__high_highlighted = True
 
     @property
     def is_highlighted(self):
-        return self.highlighted
+        return self.__highlighted
+
+    @property
+    def is_low_edge_highlighted(self):
+        return self.__low_highlighted
+
+    @property
+    def is_high_edge_highlighted(self):
+        return self.__high_highlighted
 
     # 绘制二叉树相关
     def create_child_node(self, direc=None, d=None, h=None,
@@ -106,7 +122,7 @@ class Node:
     def draw_line_towards(self, isDashed, node, highlight=False):
         width = 1
         color = 'black'
-        if highlight or (self.is_highlighted and node.is_highlighted) is True:
+        if highlight is True:
             color = self.highlight_color
             width = 2
         if isDashed:
@@ -138,30 +154,3 @@ class LeafNode(Node):
 
     def draw_high_line(self):
         pass
-
-
-class Tree:
-
-    def __init__(self, root_node=None):
-        self.root_node = root_node
-
-    def draw_all_lines(self, node): # 画出所有连线
-        if node:
-            node.draw_high_line()
-            node.draw_low_line()
-        if node.low_child:
-            self.draw_all_lines(node.low_child)
-        if node.high_child:
-            self.draw_all_lines(node.high_child)
-
-    def draw_all_nodes(self, node): # 画出所有节点内容
-        if node:
-            node.draw_center()
-        if node.low_child:
-            self.draw_all_nodes(node.low_child)
-        if node.high_child:
-            self.draw_all_nodes(node.high_child)
-
-    def draw(self): # 画出整个树
-        self.draw_all_lines(self.root_node)
-        self.draw_all_nodes(self.root_node)

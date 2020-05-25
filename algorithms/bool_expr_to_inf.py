@@ -37,7 +37,7 @@ class INFExpr:
         return self.highlighted
 
     def to_str(self):
-        s = self.t + self.a + ' = ' + self.current_var + ' -> '
+        s = self.t + self.a + ' -> '
         if isinstance(self.b1,bool):
             s += str(int(self.b1))
         else:
@@ -49,6 +49,8 @@ class INFExpr:
             s += str(int(self.b2))
         else:
             s += 't' + self.b2
+
+        s += ' (' + self.current_var + ')'
         return s
 
     def equals(self, inf_expr):
@@ -191,9 +193,6 @@ class BoolExprToInf:
             for i in self.inf_list:
                 print(i.to_str())
 
-        if generate_decision_tree is True:
-            self.decision_tree = Tree(root_node=root_node)
-
     def simplify_inf_list(self, debug=False):
         self.simplified_inf_list.clear()
         if len(self.inf_list) <= 1:  # 若只有一条INF，则无需简化
@@ -235,24 +234,21 @@ class BoolExprToInf:
         for index, inf in enumerate(self.simplified_inf_list):
             to_replace = ''
             replaced_by = ''
-            if inf.b1 == inf.b2:
+            if inf.b1 == inf.b2: # 高低端子节点相同
                 to_replace = inf.a
                 replaced_by = inf.b1
                 self.simplified_inf_list.remove(inf)
             for j in range(index):
-                if inf.b1 == to_replace:
-                    inf.b1 = replaced_by
-                if inf.b2 == to_replace:
-                    inf.b2 = replaced_by
+                tmp_inf = self.simplified_inf_list[j]
+                if tmp_inf.b1 == to_replace:
+                    tmp_inf.b1 = replaced_by
+                if tmp_inf.b2 == to_replace:
+                    tmp_inf.b2 = replaced_by
 
         if debug is True:
             print('简化后的INF:')
             for inf in self.simplified_inf_list:
                 print(inf.to_str())
-
-
-
-
 
 
     # l = [ [a,next_var]|bool, [a,next_var]|bool]
@@ -296,7 +292,7 @@ class BoolExprToInf:
             l[1] = branch[1]
         return l
 
-    # 对 self.simplified_inf_list根据变量取值进行高亮
+    # 对inf_list根据变量取值进行高亮
     def highlight_inf_and_node(self, variables=None):
         print(variables)
         if len(self.simplified_inf_list) == 0:  # INF列表为空则退出
@@ -344,8 +340,7 @@ if __name__ == '__main__':
                           'y1':False,
                           'x2':False,
                           'y2':False
-                      },
-                      root_center=(500,30))
+                      })
     inf_list = b.get_inf_list()
     for i in inf_list:
         print(i.to_str())
