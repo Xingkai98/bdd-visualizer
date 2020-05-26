@@ -7,6 +7,9 @@ from bool_expr_to_bdd import *
 from list_permuter import *
 from functools import partial
 from bool_expr_to_inf import BoolExprToInf
+from PIL import Image
+from PIL import ImageGrab
+import os
 
 class MainFrame(tk.Tk):
 
@@ -35,7 +38,7 @@ class MainFrame(tk.Tk):
 
         # left_frame
         tk.Label(self.__left_frame, text="路径（带文件名，后缀为bdd）：", fg="black").pack(side=tk.TOP, fill=BOTH)
-        self.dir_input = tk.Text(self.__left_frame, height=2, width=40, highlightbackground='grey')
+        self.dir_input = tk.Text(self.__left_frame, height=1, width=40, highlightbackground='grey')
         self.dir_input.pack(side=tk.TOP, fill=BOTH)
         self.import_button = tk.Button(self.__left_frame, text='导入', command=self.read_from_file)
         self.import_button.pack(side=tk.TOP, fill=BOTH)
@@ -59,8 +62,12 @@ class MainFrame(tk.Tk):
         self.var_list_label.pack(side=tk.TOP, fill=BOTH)
 
         # mid_frame
-        self.save_pic_button = tk.Button(self.__mid_frame, text='保存为图片',width=70)
+        self.save_pic_button = tk.Button(self.__mid_frame, text='保存为图片', width=70, command=self.save_as_png)
         self.save_pic_button.pack(side=tk.BOTTOM, fill=BOTH)
+        self.img_input = tk.Text(self.__mid_frame, height=1, width=40, highlightbackground='grey')
+        self.img_input.pack(side=tk.BOTTOM, fill=BOTH)
+
+        tk.Label(self.__mid_frame, text="路径（带文件名，后缀为png）：", fg="black").pack(side=tk.BOTTOM, fill=BOTH)
 
         # right_frame
         self.save_params_button = tk.Button(self.__right_frame, text='保存参数',width=25)
@@ -121,6 +128,35 @@ class MainFrame(tk.Tk):
 
     def get_expr(self):
         return self.__expr
+
+    def save_as_png(self):
+        dir = str(self.img_input.get(1.0, tk.END).strip())
+        if dir == '' or not dir.endswith('.png'):
+                msgbox.showerror('错误', '请输入文件后缀名为png的正确路径。')
+                return
+
+        # save postscipt image
+        self.__img_frame.canvas.postscript(file='test' + '.eps')
+        # use PIL to convert to PNG
+        img = Image.open('test.eps')
+        if dir.endswith('.png'):
+            img.save(dir, 'png')
+        os.remove('test.eps')
+        msgbox.showinfo('提示', '图片文件已成功保存。')
+
+    def save_as_png_alter(self):
+        dir = str(self.img_input.get(1.0, tk.END).strip())
+        if dir == '' or not dir.endswith('.png'):
+            msgbox.showerror('错误', '请输入文件后缀名为png的正确路径。')
+            return
+        root = self
+        widget = self.__img_frame
+        x = root.winfo_rootx() + widget.winfo_x()
+        y = root.winfo_rooty() + widget.winfo_y()
+        x1 = x + widget.winfo_width()
+        y1 = y + widget.winfo_height()
+        ImageGrab.grab().crop((x, y, x1, y1)).save(dir)
+        msgbox.showinfo('提示', '图片文件已成功保存。')
 
     def read_from_file(self):
         dir = str(self.dir_input.get(1.0, tk.END).strip())
