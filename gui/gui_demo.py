@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.messagebox as msgbox
 from img_frame import ImgFrame
-from bool_expr_to_bdd import *
+from antlr_facility import AntlrFacility
 from list_permuter import *
 
 class BddDemo(tk.Tk):

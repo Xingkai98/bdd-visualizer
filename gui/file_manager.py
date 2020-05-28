@@ -2,10 +2,6 @@ import os
 import filecmp, fileinput
 import pickle
 
-# 图片文件管理
-class ImageFile:
-    pass
-
 # 状态文件管理
 class StatusFile:
 
@@ -35,7 +31,3 @@ class StatusFile:
             self.h = data_list[2]
             self.w = data_list[3]
             self.expr = data_list[4]
-
-# 文件输入输出管理
-class FileManager:
-    pass

@@ -3,12 +3,13 @@ import tkinter.messagebox as msgbox
 from tkinter import *
 from img_frame import ImgFrame
 from file_manager import StatusFile
-from bool_expr_to_bdd import *
 from list_permuter import *
 from functools import partial
 from bool_expr_to_inf import BoolExprToInf
+from inf_to_bdd import INFToBDD
 from PIL import Image
 from PIL import ImageGrab
+from antlr_facility import AntlrFacility
 import os
 
 class MainFrame(tk.Tk):
@@ -57,6 +58,14 @@ class MainFrame(tk.Tk):
 
         self.update_expr_label = tk.Label(self.__left_frame, text="输入表达式", bg="white", fg="black")
         self.update_expr_label.pack(side=tk.BOTTOM, fill=BOTH)
+
+        # 重置变量值为0按钮
+        self.update_expr_button = tk.Button(self.__left_frame, text='重置变量值为0', command=self.set_all_value_to_false)
+        self.update_expr_button.pack(side=tk.BOTTOM, fill=BOTH)
+
+        # 自动寻找最简变量按钮
+        self.update_expr_button = tk.Button(self.__left_frame, text='设置变量顺序为最简', command=self.update_var_seq_as_optimal)
+        self.update_expr_button.pack(side=tk.BOTTOM, fill=BOTH)
 
         self.var_list_label = tk.Label(self.__left_frame, text="变量列表", bg="grey", fg="black")
         self.var_list_label.pack(side=tk.TOP, fill=BOTH)
@@ -135,9 +144,9 @@ class MainFrame(tk.Tk):
                 msgbox.showerror('错误', '请输入文件后缀名为png的正确路径。')
                 return
 
-        # save postscipt image
+        # 将图片保存为eps格式
         self.__img_frame.canvas.postscript(file='test' + '.eps')
-        # use PIL to convert to PNG
+        # 转换为png格式
         img = Image.open('test.eps')
         if dir.endswith('.png'):
             img.save(dir, 'png')
@@ -207,15 +216,15 @@ class MainFrame(tk.Tk):
 
     def set_var_value_to_true(self, var_name):
         self.__variables[var_name] = True
-        self.repack_var()
-        self.update_show_inf()
-        self.update_image()
+        self.update_all()
 
     def set_var_value_to_false(self, var_name):
         self.__variables[var_name] = False
-        self.repack_var()
-        self.update_show_inf()
-        self.update_image()
+        self.update_all()
+
+    def set_all_value_to_false(self):
+        for var in self.get_var_list():
+            self.set_var_value_to_false(var_name=var)
 
     def redraw_image(self):
         self.update_image()
@@ -232,8 +241,6 @@ class MainFrame(tk.Tk):
                 tmp.pack(side=tk.TOP)
                 self.__inf_label_list.append(tmp)
 
-
-
     def move_var_up(self, var_name):
         index = 0  # 变量下标
         for i, var in enumerate(self.__var_list):
@@ -243,10 +250,7 @@ class MainFrame(tk.Tk):
             return
         self.__var_list.remove(var_name)
         self.__var_list.insert(index-1,var_name)
-        print(self.__var_list)
-        self.repack_var()
-        self.update_show_inf()
-        self.update_image()
+        self.update_all()
 
     def move_var_down(self, var_name):
         index = 0   # 变量下标
@@ -257,10 +261,7 @@ class MainFrame(tk.Tk):
             return
         self.__var_list.remove(var_name)
         self.__var_list.insert(index + 1, var_name)
-        print(self.__var_list)
-        self.repack_var()
-        self.update_show_inf()
-        self.update_image()
+        self.update_all()
 
     def set_variable_value(self, name, value):
         if self.__variables[name]:
@@ -268,9 +269,6 @@ class MainFrame(tk.Tk):
 
     def set_variable_seq(self, var_list):
         self.__var_list = var_list
-
-    def set_seq_as_optimal(self):
-        pass
 
     def set_expr(self, expr):
         self.__expr = expr
@@ -302,6 +300,11 @@ class MainFrame(tk.Tk):
             self.__var_frame.append(frame)
             frame.pack(side=tk.TOP, fill=BOTH)
 
+    def update_all(self):
+        self.repack_var()
+        self.update_show_inf()
+        self.update_image()
+
     def update_expr(self): # 根据表达式、是否高亮的参数更新变量列表、决策图图形
         text = str(self.text_input.get(1.0, tk.END).strip())
         if text == '':
@@ -328,12 +331,35 @@ class MainFrame(tk.Tk):
         for var in self.__var_list:
             self.__variables[var] = False  # 默认设置每个变量的取值为False
 
-        self.repack_var()
-        self.update_show_inf()
-        self.update_image()
+        self.update_all()
 
-    def update_var_seq(self):
-        pass
+
+    def update_var_seq_as_optimal(self):
+        lp = ListPermuter()
+        var_list_permuted = lp.permute(self.__var_list)
+
+        smallest_num = -1
+        result = var_list_permuted[0]
+
+        for var_list in var_list_permuted:
+            bool_to_inf = BoolExprToInf(canvas=self.__img_frame.canvas,
+                                        bool_expr=self.get_expr(),
+                                        var_list=var_list,
+                                        variables=self.get_variables(),
+                                        root_center=self.__img_frame.root_center)
+            inf_list = bool_to_inf.get_inf_list(debug=False)
+            node_num = len(inf_list)
+            print(str(node_num))
+            if smallest_num < 0:
+                smallest_num = node_num
+            if node_num < smallest_num:
+                smallest_num = node_num
+                result = var_list
+        print('最简变量顺序:')
+        print(result)
+        print(str(smallest_num))
+        self.set_variable_seq(result)
+        self.update_all()
 
     def update_image(self):
         if self.__expr != '':

@@ -8,7 +8,7 @@ class Obj:
         self.current_var = current_var
         self.node = node
 
-# a = current_var -> b1, b2
+# a -> b1, b2 (current_var)
 # b1为取值为1的分支，b2为取值为0的分支，类型为str或bool
 class INFExpr:
 
@@ -123,7 +123,7 @@ class BoolExprToInf:
 
     def get_inf_list(self, generate_decision_tree=True, debug=False):
         self.generate_raw_inf_list(generate_decision_tree=generate_decision_tree,
-                               debug=debug)
+                                   debug=debug)
         self.simplify_inf_list(debug=debug)  # 得到简化后的INF
         return self.simplified_inf_list
 
@@ -294,7 +294,6 @@ class BoolExprToInf:
 
     # 对inf_list根据变量取值进行高亮
     def highlight_inf_and_node(self, variables=None):
-        print(variables)
         if len(self.simplified_inf_list) == 0:  # INF列表为空则退出
             return
         tmp_inf = self.simplified_inf_list[0]
@@ -302,7 +301,6 @@ class BoolExprToInf:
         # 对高亮节点所在的式子进行高亮
         while True:
             tmp_inf.highlight()
-            print(tmp_inf.current_var + ' highlighted.')
             val = variables[tmp_inf.current_var]
             if isinstance(tmp_inf.b1, bool) and isinstance(tmp_inf.b2, bool):
                 break
@@ -320,7 +318,6 @@ class BoolExprToInf:
             if i.is_highlighted:
                 this_node = self.obdd_node[i.current_var][i.index]  # 找出当前节点
                 this_node.highlight()
-                print(this_node.text + ' index: ' + str(i.index) + ' highlighted.')
 
                 # 如果指向尾端0或1节点，对其进行高亮
                 if variables[i.current_var]:  # 指向b1

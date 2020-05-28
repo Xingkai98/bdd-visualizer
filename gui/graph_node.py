@@ -1,5 +1,6 @@
 from tkinter import Tk, Canvas, Frame, BOTH, W, CENTER
 
+# 决策图中的节点类
 class Node:
 
     highlight_color = 'blue'  # 高亮路径的颜色
@@ -136,6 +137,7 @@ class Node:
                                     fill=color,
                                     width=width)
 
+# 终端节点类
 class LeafNode(Node):
 
     def draw_center(self, text=None, r=15, highlight=False):

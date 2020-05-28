@@ -1,6 +1,6 @@
 from graph_node import *
 
-
+# 二元决策图类
 class BDD:
     __var_to_node = {}
     __a_to_node = {}
@@ -13,20 +13,20 @@ class BDD:
                        inf_list,
                        inf_dict,
                        root_node):
-        self.__var_to_node = var_to_node
+        self.__var_to_node = var_to_node  # 变量-节点位置列表的词典
         self.__a_to_node = a_to_node
         self.__root_center = root_center
-        self.__inf_list = inf_list
+        self.__inf_list = inf_list  # INF列表
         self.__inf_dict = inf_dict
-        self.__root_node = root_node
+        self.__root_node = root_node  # 跟节点
 
         for inf in inf_list:
             start_node = self.__var_to_node[inf.current_var][inf.index]  # 找出起点位置
 
             # 找出终点位置（高端）
-            if inf.b1 == False:
+            if inf.b1 is False:
                 b1_node = self.__var_to_node['0'][0]
-            elif inf.b1 == True:
+            elif inf.b1 is True:
                 b1_node = self.__var_to_node['1'][0]
             else:
                 b1_varname = inf_dict[inf.b1].current_var  # 变量名
@@ -35,9 +35,9 @@ class BDD:
             start_node.high_child = b1_node
 
             # 找出终点位置（低端）
-            if inf.b2 == False:
+            if inf.b2 is False:
                 b2_node = self.__var_to_node['0'][0]
-            elif inf.b2 == True:
+            elif inf.b2 is True:
                 b2_node = self.__var_to_node['1'][0]
             else:
                 b2_varname = inf_dict[inf.b2].current_var
@@ -66,7 +66,7 @@ class BDD:
     def paint(self, canvas=None,
                   inf_list=None,
                   inf_dict=None,
-                  highlight=False,  # 是否高亮，若高亮则需用到variables
+                  highlight=False,  # 是否高亮，若高亮则需用到variables，即各变量取值
                   var_list=None,
                   variables=None,
                   debug=False):
@@ -76,12 +76,13 @@ class BDD:
 
         self.sub_paint(self.__root_node)
 
-        # 画OBDD节点
+        # 画BDD节点
         for var in self.__var_to_node:
             node_list = self.__var_to_node[var]
             for node in node_list:
                 node.draw_center()
 
+    # 递归调用
     def sub_paint(self, node):
         if isinstance(node, LeafNode):
             return
