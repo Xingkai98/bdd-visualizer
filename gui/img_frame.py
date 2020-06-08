@@ -34,7 +34,7 @@ class ImgFrame(Frame):
                                     var_list=self.var_list,
                                     variables=self.variables,
                                     root_center=self.root_center)
-        self.inf_list = bool_to_inf.get_inf_list(debug=False)
+        self.inf_list = bool_to_inf.get_inf_list(debug=True)
         self.inf_dict = bool_to_inf.simplified_inf_dict
 
         ib = INFToBDD()

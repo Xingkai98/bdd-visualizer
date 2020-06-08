@@ -231,19 +231,27 @@ class BoolExprToInf:
                 print(inf.to_str())
 
         # 从前向后再进行简化
-        for index, inf in enumerate(self.simplified_inf_list):
-            to_replace = ''
-            replaced_by = ''
-            if inf.b1 == inf.b2: # 高低端子节点相同
-                to_replace = inf.a
-                replaced_by = inf.b1
-                self.simplified_inf_list.remove(inf)
-            for j in range(index):
-                tmp_inf = self.simplified_inf_list[j]
-                if tmp_inf.b1 == to_replace:
-                    tmp_inf.b1 = replaced_by
-                if tmp_inf.b2 == to_replace:
-                    tmp_inf.b2 = replaced_by
+        while True:
+            is_simplified = True
+            for index, inf in enumerate(self.simplified_inf_list):
+                if inf.b1 == inf.b2: # 高低端子节点相同
+                    is_simplified = False
+                    break
+            if is_simplified is True:
+                break
+            for index, inf in enumerate(self.simplified_inf_list):
+                to_replace = ''
+                replaced_by = ''
+                if inf.b1 == inf.b2: # 高低端子节点相同
+                    to_replace = inf.a
+                    replaced_by = inf.b1
+                    self.simplified_inf_list.remove(inf)
+                for j in range(index):
+                    tmp_inf = self.simplified_inf_list[j]
+                    if tmp_inf.b1 == to_replace:
+                        tmp_inf.b1 = replaced_by
+                    if tmp_inf.b2 == to_replace:
+                        tmp_inf.b2 = replaced_by
 
         if debug is True:
             print('简化后的INF:')
