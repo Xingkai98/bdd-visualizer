@@ -1,2 +1,2 @@
 # BinaryDecisionDiagramVisualizer
-该Repo为本人本科毕设项目的代码。项目的内容为一个将二元决策图可视化展现的PC端程序。程序入口是gui/main_frame.py。注意在Pycharm中需要把所有文件夹都标记为Sources root文件夹。具体操作见https://www.jetbrains.com/help/pycharm/configuring-project-structure.html
+该Repo为本人本科毕设项目的代码。项目的内容为一个将二元决策图可视化展现的PC端程序程序入口是gui/main_frame.py。注意在Pycharm中需要把所有文件夹都标记为Sources root文件夹，具体操作见https://www.jetbrains.com/help/pycharm/configuring-project-structure.html
