@@ -1,1 +1,2 @@
-# binary-decision-diagram-visualizer
+# BinaryDecisionDiagramVisualizer
+该Repo为本人本科毕设项目的代码。项目的内容为一个将二元决策图可视化展现的PC端程序。程序入口是gui/main_frame.py。
